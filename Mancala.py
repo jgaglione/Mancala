@@ -1,4 +1,4 @@
-
+# Set initial board setup
 BP1 = [4, 4, 4, 4, 4, 4, 0]
 BP2 = [4, 4, 4, 4, 4, 4, 0]
 
@@ -6,6 +6,7 @@ print("*******************************")
 print("***   WELCOME TO MANCALA   ****")
 print("*******************************")
 
+#Print board. Second player section reversed to emulate mancala board from Player 1 view. Seperate single-value lists are capture pockets.
 def print_board():
     BP2.reverse()
     print('\nPocket # :  6  5  4  3  2  1')
@@ -19,12 +20,14 @@ print_board()
 P1InPlay = sum(BP1[:6])
 P2InPlay = sum(BP2[:6])
 
+#Check whether each player still has seeds in play, and initiate player 1 turn.
 while (P1InPlay != 0) and (P2InPlay != 0):
     P1Move = int(input('\nPlayer 1, which pocket do you want to move?'))
     Stones = BP1[P1Move - 1]
     if BP1[P1Move-1] == 0:
         print('There are no stones in that pocket.\nTRY AGAIN\n')
         continue
+    # Check whether seeds will flow into P2's pockets and distribute accordingly, or repeat turn if seed ends in capture.
     elif Stones + P1Move < 7:
         BP1[P1Move - 1] = 0
         for i in range(P1Move, Stones+P1Move):
@@ -51,6 +54,7 @@ while (P1InPlay != 0) and (P2InPlay != 0):
             for i in range(0,OFlow-1):
                 BP2[i] = BP2[i] + 1
             print_board()
+        # This handles overflow back into P1s pockets for large amount of seeds.
         else:
             BP1[P1Move - 1] = 0
             for i in range(0, 6):
@@ -65,7 +69,7 @@ while (P1InPlay != 0) and (P2InPlay != 0):
 
     P1InPlay = sum(BP1[:6])
     P2InPlay = sum(BP2[:6])
-
+    # Initiate player 2 turn. Structured the same as player 1 turn.
     while (P1InPlay != 0) and (P2InPlay != 0):
         P2Move = int(input('\nPlayer 2, which pocket do you want to move?'))
         Stones = BP2[P2Move - 1]
