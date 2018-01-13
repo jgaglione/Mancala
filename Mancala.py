@@ -2,6 +2,10 @@
 BP1 = [4, 4, 4, 4, 4, 4, 0]
 BP2 = [4, 4, 4, 4, 4, 4, 0]
 
+print("*******************************")
+print("***   WELCOME TO MANCALA   ****")
+print("*******************************")
+
 def print_board():
     BP2.reverse()
     print('\nPocket # :  6  5  4  3  2  1')
