@@ -1,0 +1,5 @@
+A test of inputs has been provided that leads to a finished game (in my testing).
+
+https://docs.google.com/spreadsheets/d/18teukQ9_9rJJ8mlwh8kgFUqqpYXU4M6f0cKfCGyVTZY/edit?usp=sharing
+
+Note: The numbers provided are the indexes you want to input.
