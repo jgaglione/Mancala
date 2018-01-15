@@ -1,4 +1,3 @@
-
 def main():
     BP1 = [4, 4, 4, 4, 4, 4, 0]
     BP2 = [4, 4, 4, 4, 4, 4, 0]
@@ -21,117 +20,85 @@ def print_board(BP1, BP2):
     print('Pocket # :  1  2  3  4  5  6')
     BP2.reverse()
 
-def play(BP1, BP2):
-    GameOver = False
+def play(BP1, BP2, GameOver = False):
     while GameOver != True:
-        playermancala = playround(BP1, BP2, GameOver)
-        BP1 = playermancala[0]
-        BP2 = playermancala[1]
-        if sum(BP1[:6]) == 0 or sum(BP2[:6]) == 0:
-            GameOver = True
-            BP1[6] += sum(BP1[:6])
-            BP2[6] += sum(BP2[:6])
+        for i in range(1, 3):
+            mancalaList = playround(BP1, BP2, i)
+            BP1 = mancalaList[0]
+            BP2 = mancalaList[1]
+            if sum(BP1[:6]) == 0 or sum(BP2[:6]) == 0:
+                GameOver = True
+                BP1[6] += sum(BP1[:6])
+                BP2[6] += sum(BP2[:6])
+                play(BP1, BP2, True)
+                return
     print('\nGAME OVER. \nPlayer 1 Scored: ', BP1[6], '\nPlayer 2 Scored: ', BP2[6])
-
-def playround(BP1, BP2, GameOver):
+    
+def playround(BP1, BP2, PlayerNum):
     P1InPlay = sum(BP1[:6])
     P2InPlay = sum(BP2[:6])
-    P1Move = int(input('\nPlayer 1, which pocket do you want to move? '))
-    Stones = BP1[P1Move - 1]
-    if BP1[P1Move - 1] == 0:
+    if P1InPlay == 0 or P2InPlay == 0:
+        return [BP1, BP2]
+    if PlayerNum == 1:
+        Move = int(input('\nPlayer 1, which pocket do you want to move? '))
+        Stones = BP1[Move - 1]
+        BP = BP1
+        OtherBP = BP2
+    elif PlayerNum == 2:
+        Move = int(input('\nPlayer 2, which pocket do you want to move? '))
+        Stones = BP2[Move - 1]
+        BP = BP2
+        OtherBP = BP1
+    if Stones == 0:
         print('There are no stones in that pocket.\nTRY AGAIN\n')
-        return [BP1, BP2, GameOver]
-    # Check whether seeds will flow into P2's pockets and distribute accordingly, or repeat turn if seed ends in capture.
-    elif Stones + P1Move < 7:
-        BP1[P1Move - 1] = 0
-        for i in range(P1Move, Stones + P1Move):
-            BP1[i] = BP1[i] + 1
-        if (BP1[i] == 1) and (i != 6):
-            BP1[i] = BP1[i] + BP2[5 - i]
-            BP2[5 - i] = 0
+        playround(BP1, BP2, PlayerNum)
+    elif Stones + Move < 7:
+        BP[Move - 1] = 0
+        for i in range(Move, Stones + Move):
+            BP[i] += 1
+        if (BP[i] == 1) and (i != 6):
+            BP[i] += OtherBP[5 - i]
+            OtherBP[5 - i] = 0
             pass
-        #print_board(BP1, BP2)
-    elif Stones + P1Move == 7:
-        BP1[P1Move - 1] = 0
-        for i in range(P1Move, Stones + P1Move):
-            BP1[i] = BP1[i] + 1
-        print_board(BP1, BP2)
-        return [BP1, BP2, GameOver]
-    elif Stones + P1Move > 7:
-        print('OF')
-        OFlow = Stones + P1Move - 6
-
-        for i in range(P1Move, 7):
-            BP1[i] = BP1[i] + 1
+    elif Stones + Move == 7:
+        BP[Move - 1] = 0
+        for i in range(Move, Stones + Move):
+            BP[i] += 1
+        returnList = toReturn(BP, OtherBP, PlayerNum)
+        if (P1InPlay == 0 or P2InPlay == 0):
+            return [returnList[0], returnList[1]]
+        print_board(returnList[0], returnList[1])
+        return playround(returnList[0], returnList[1], PlayerNum)
+    elif Stones + Move > 7:
+        OFlow = Stones + Move - 6
+        for i in range(Move, 7):
+            BP[i] += 1
         if OFlow < 7:
-            BP1[P1Move - 1] = 0
+            BP[Move - 1] = 0
             for i in range(0, OFlow - 1):
-                BP2[i] = BP2[i] + 1
-            #print_board(BP1, BP2)
-        # This handles overflow back into P1s pockets for large amount of seeds.
+                OtherBP[i] += + 1
         else:
-            BP1[P1Move - 1] = 0
+            BP[Move - 1] = 0
             for i in range(0, 6):
-                BP2[i] = BP2[i] + 1
+                OtherBP[i] += 1
             for i in range(0, OFlow - 7):
-                BP1[i] = BP1[i] + 1
-        if (BP1[i] == 1) and (i != 6):
-            BP1[i] = BP1[i] + BP2[5 - i]
-            BP2[5 - i] = 0
+                BP[i] += 1
+        if (BP[i] == 1) and (i != 6):
+            BP[i] += OtherBP[5 - i]
+            OtherBP[5 - i] = 0
             pass
-    print_board(BP1, BP2)
-    P1InPlay = sum(BP1[:6])
-    P2InPlay = sum(BP2[:6])
-    P2Turn = True
-    # Initiate player 2 turn. Structured the same as player 1 turn.
-    while P2Turn != False:
-        if sum(BP2[:6]) == 0:
-            return [BP1, BP2, GameOver]
+    returnList = toReturn(BP, OtherBP, PlayerNum)
+    print_board(returnList[0], returnList[1])
+    return toReturn(BP, OtherBP, PlayerNum)
 
-        P2Move = int(input('\nPlayer 2, which pocket do you want to move?'))
-        Stones = BP2[P2Move - 1]
-        if BP2[P2Move - 1] == 0:
-            print('There are no stones in that pocket.\nTRY AGAIN\n')
-            continue
-        elif Stones + P2Move < 7:
-            BP2[P2Move - 1] = 0
-            for i in range(P2Move, Stones + P2Move):
-                BP2[i] = BP2[i] + 1
-            if (BP2[i] == 1) and (i != 6):
-                BP2[i] = BP2[i] + BP1[5 - i]
-                BP1[5 - i] = 0
-                pass
-            print_board(BP1, BP2)
-        elif Stones + P2Move == 7:
-            BP2[P2Move - 1] = 0
-            for i in range(P2Move, Stones + P2Move):
-                BP2[i] = BP2[i] + 1
-            print_board(BP1, BP2)
-            continue
-        else:
-            print('OF')
-            OFlow = Stones + P2Move - 6
-            for i in range(P2Move, 7):
-                BP2[i] = BP2[i] + 1
-            if OFlow < 7:
-                BP2[P2Move - 1] = 0
-                for i in range(0, OFlow - 1):
-                    BP1[i] = BP1[i] + 1
+def toReturn(BP, OtherBP, PlayerNum):
+    if PlayerNum == 1:
+        BP1 = BP
+        BP2 = OtherBP
+    elif PlayerNum == 2:
+        BP1 = OtherBP
+        BP2 = BP
+    return [BP1, BP2]
 
-            else:
-                BP2[P2Move - 1] = 0
-                for i in range(0, 6):
-                    BP1[i] = BP1[i] + 1
-                for i in range(0, OFlow - 7):
-                    BP2[i] = BP2[i] + 1
-            if (BP2[i] == 1) and (i != 6):
-                BP2[i] = BP2[i] + BP1[5 - i]
-                BP1[5 - i] = 0
-                pass
-            print_board(BP1, BP2)
-            P1InPlay = sum(BP1[:6])
-            P2InPlay = sum(BP2[:6])
-        P2Turn = False
-    return [BP1, BP2, GameOver]
 if __name__ == '__main__':
     main()
